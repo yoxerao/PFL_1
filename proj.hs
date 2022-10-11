@@ -1,4 +1,4 @@
-type Polynomial = [(String,Int,Int)] 
+type Polynomial = [(Integer,[Char],[Integer])] 
 
 addPolynomial :: Polynomial -> Polynomial -> Polynomial
 addPolynomial [] ys = ys
