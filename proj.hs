@@ -26,12 +26,20 @@ addSameExp m1 (x:xs)
     | snd m1 == snd x = addMonomials m1 x : xs
     | otherwise = x: addSameExp m1 xs
 
+normalizePolynomial :: Polynomial -> Polynomial
+--type Polynomial = [(Int,[(Char, Intw)])]
+normalizePolynomial a
+       | null a = []
+       | otherwise = recursiveHelper (stripPoly a)
+       where
+       recursiveHelper xs
+            | null xs = []
+            | otherwise = addSameExp (head xs) (recursiveHelper (tail xs)) 
 {- testing example
 [ (0, [('x', 1)]), (1, [('x', 0)]) , (2, [('y', 2)]), (3, [('y', 2)]), (0, [('x', 1), ('y', 2)]) ] -}
 {- normalPolynomial :: Polynomial -> Polynomial
 normalPolynomial [] = [] -}
-
-{- addPolynomial :: Polynomial -> Polynomial -> Polynomial
-addPolynomial [] ys = ys
-addPolynomial xs [] = xs
-addPolynomial xs ys = normalPolynomial xs:ys -}
+addPolynomials :: Polynomial -> Polynomial -> Polynomial
+addPolynomials [] b = b
+addPolynomials a [] = a
+addPolynomials a b = normalizePolynomial (a ++ b)
