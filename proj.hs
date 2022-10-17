@@ -1,3 +1,6 @@
+import Data.List
+import Data.Function
+import Data.Ord
 {- type Polynomial = [(Integer,[Char],[Integer])] -}
 type Polynomial = [(Int,[(Char, Int)])]
 
@@ -26,15 +29,19 @@ addSameExp m1 (x:xs)
     | snd m1 == snd x = addMonomials m1 x : xs
     | otherwise = x: addSameExp m1 xs
 
+sortPoly:: Polynomial -> Polynomial
+sortPoly [] = []
+sortPoly xs = sortOn (snd.last.snd) xs  {- !! SE A LISTA DE VARS ESTIVER VAZIA EM ALGUM MONOMIO DÁ ERRO !! -}
+
 normalizePolynomial :: Polynomial -> Polynomial
 --type Polynomial = [(Int,[(Char, Intw)])]
 normalizePolynomial a
        | null a = []
-       | otherwise = recursiveHelper (stripPoly a)
+       | otherwise = reverse (sortPoly (recursiveHelper (stripPoly a)))
        where
        recursiveHelper xs
             | null xs = []
-            | otherwise = addSameExp (head xs) (recursiveHelper (tail xs)) 
+            | otherwise = addSameExp (head xs) (recursiveHelper (tail xs))
 {- testing example
 [ (0, [('x', 1)]), (1, [('x', 0)]) , (2, [('y', 2)]), (3, [('y', 2)]), (0, [('x', 1), ('y', 2)]) ] -}
 {- normalPolynomial :: Polynomial -> Polynomial
