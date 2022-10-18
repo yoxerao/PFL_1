@@ -30,11 +30,15 @@ addSameExp m1 (x:xs)
     | otherwise = x: addSameExp m1 xs
 
 {- checks if a var is repeated in the same monomial and joins it by adding the exponents -}
-joinSameVar :: (Char, Int) -> [(Char, Int)] -> [(Char, Int)]
-joinSameVar v [] = [v]
-joinSameVar v (x:xs)
-    | fst v == fst x = (fst v, snd v + snd x) : joinSameVar (fst v, snd v + snd x) xs
-    | otherwise = v : joinSameVar x xs
+joinSameVarHelper :: (Char, Int) -> [(Char, Int)] -> [(Char, Int)]
+joinSameVarHelper v [] = [v]
+joinSameVarHelper v (x:xs)
+    | fst v == fst x = joinSameVarHelper (fst v, snd v + snd x) xs
+    | otherwise = x : joinSameVarHelper v xs
+
+{- joinSameVar :: [(Char, Int)] -> [(Char, Int)]
+joinSameVar (x:xs) =  -}
+
 
 sortPoly:: Polynomial -> Polynomial
 sortPoly [] = []
