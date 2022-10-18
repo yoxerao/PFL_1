@@ -29,6 +29,13 @@ addSameExp m1 (x:xs)
     | snd m1 == snd x = addMonomials m1 x : xs
     | otherwise = x: addSameExp m1 xs
 
+{- checks if a var is repeated in the same monomial and joins it by adding the exponents -}
+joinSameVar :: (Char, Int) -> [(Char, Int)] -> [(Char, Int)]
+joinSameVar v [] = [v]
+joinSameVar v (x:xs)
+    | fst v == fst x = (fst v, snd v + snd x) : joinSameVar (fst v, snd v + snd x) xs
+    | otherwise = v : joinSameVar x xs
+
 sortPoly:: Polynomial -> Polynomial
 sortPoly [] = []
 sortPoly xs = sortOn (snd.last.snd) xs  {- !! SE A LISTA DE VARS ESTIVER VAZIA EM ALGUM MONOMIO DÁ ERRO !! -}
