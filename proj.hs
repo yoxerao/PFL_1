@@ -1,8 +1,11 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 import Data.List
 import Data.Function
 import Data.Ord
 {- type Polynomial = [(Integer,[Char],[Integer])] -}
 type Polynomial = [(Int,[(Char, Int)])]
+type Monomial = (Int,[(Char, Int)])
 
 {- removes all variables with a 0 exponent from a single monomial -}
 removeNullExp :: [(Char, Int)] -> [(Char,Int)]
@@ -19,11 +22,11 @@ stripPoly ((a,[]):xs) = (a,[]):stripPoly xs
 stripPoly ((a,(b, c):xs):xss) = (a, removeNullExp ((b,c):xs) ): stripPoly xss
 
 {- adds monomials -}
-addMonomials :: (Int,[(Char, Int)]) -> (Int,[(Char, Int)]) -> (Int,[(Char, Int)])
+addMonomials :: Monomial -> Monomial -> Monomial
 addMonomials m1 m2 = (fst m1 + fst m2, snd m1)
 
 {- checks if the literal parts are equal and adds the monomials -}
-addSameExp:: (Int,[(Char, Int)]) -> Polynomial -> Polynomial
+addSameExp:: Monomial -> Polynomial -> Polynomial
 addSameExp m1 [] = [m1]
 addSameExp m1 (x:xs)
     | snd m1 == snd x = addMonomials m1 x : xs
@@ -50,13 +53,13 @@ applyJoinSameVarToPoly (x:xs) = (fst x, iterJoinSameVar (snd x)) : applyJoinSame
 
 sortPoly:: Polynomial -> Polynomial
 sortPoly [] = []
-sortPoly xs = sortOn (snd.last.snd) xs  {- !! SE A LISTA DE VARS ESTIVER VAZIA EM ALGUM MONOMIO DÁ ERRO !! -}
+sortPoly xs = sortOn (snd.last.snd) xs  {- !! NAO USAR AINDA !! -}
 
 normalizePolynomial :: Polynomial -> Polynomial
 --type Polynomial = [(Int,[(Char, Int)])]
 normalizePolynomial a
        | null a = []
-       | otherwise = reverse (sortPoly (recursiveHelper (stripPoly a)))
+       | otherwise = recursiveHelper (applyJoinSameVarToPoly (stripPoly a))
        where
        recursiveHelper xs
             | null xs = []
@@ -70,6 +73,17 @@ addPolynomials :: Polynomial -> Polynomial -> Polynomial
 addPolynomials [] b = b
 addPolynomials a [] = a
 addPolynomials a b = normalizePolynomial (a ++ b)
+
+
+distributeMono :: Monomial -> Polynomial -> Polynomial
+distributeMono _ [] = []
+distributeMono x (y:ys) = ((fst(x) * fst(y)), iterJoinSameVar ((snd x) ++ (snd y))) : distributeMono x ys
+
+multPoly :: Polynomial -> Polynomial -> Polynomial
+multPoly [] [] = []
+multPoly a [] = []
+multPoly [] b = []
+multPoly (x:xs) y = distributeMono x y ++ multPoly xs y
 
 {- multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
 multiplyPolynomials [] _ = []
