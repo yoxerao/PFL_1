@@ -7,6 +7,8 @@ import Data.Ord
 type Polynomial = [(Int,[(Char, Int)])]
 type Monomial = (Int,[(Char, Int)])
 
+
+
 {- removes all variables with a 0 exponent from a single monomial -}
 removeNullExp :: [(Char, Int)] -> [(Char,Int)]
 removeNullExp [] = []
@@ -51,15 +53,32 @@ applyJoinSameVarToPoly (x:xs) = (fst x, iterJoinSameVar (snd x)) : applyJoinSame
 {- applyJoinSameVarToPoly (x:xs) = let monList = iterJoinSameVar (snd x)
                                     in applyJoinSameVarToPoly (fst x, init monList) ++ [last monList] -}
 
-sortPoly:: Polynomial -> Polynomial
+sortPoly :: Polynomial -> Polynomial
 sortPoly [] = []
 sortPoly xs = sortOn (snd.last.snd) xs  {- !! NAO USAR AINDA !! -}
 
-normalizePolynomial :: Polynomial -> Polynomial
+varToString :: (Char, Int) -> String
+varToString (var, exp) = var : "^" ++ show exp
+
+varsToString :: [(Char, Int)] -> String
+varsToString [x] = varToString x
+varsToString (x:xs) = varToString x ++ varsToString xs
+
+monomialToString :: (Int, [(Char, Int)]) -> String
+monomialToString m = show (fst m) ++ varsToString (snd m)
+
+polynomialToString :: Polynomial -> String
+polynomialToString [] = ""
+polynomialToString [x] = monomialToString x
+polynomialToString (x:xs)
+    | fst (head xs) > 0 = monomialToString x ++ "+" ++ polynomialToString xs
+    | fst (head xs) < 0 = monomialToString x ++ polynomialToString xs
+
+normalizePolynomial :: Polynomial -> String
 --type Polynomial = [(Int,[(Char, Int)])]
 normalizePolynomial a
        | null a = []
-       | otherwise = recursiveHelper (applyJoinSameVarToPoly (stripPoly a))
+       | otherwise = polynomialToString (recursiveHelper (applyJoinSameVarToPoly (stripPoly a)))
        where
        recursiveHelper xs
             | null xs = []
@@ -69,23 +88,17 @@ normalizePolynomial a
 [ (0, [('x', 1)]), (1, [('x', 0)]) , (2, [('y', 2)]), (3, [('y', 2)]), (0, [('x', 1), ('y', 2)]) ] -}
 {- normalPolynomial :: Polynomial -> Polynomial
 normalPolynomial [] = [] -}
-addPolynomials :: Polynomial -> Polynomial -> Polynomial
-addPolynomials [] b = b
-addPolynomials a [] = a
+addPolynomials :: Polynomial -> Polynomial -> String
+addPolynomials [] b = polynomialToString b
+addPolynomials a [] = polynomialToString a
 addPolynomials a b = normalizePolynomial (a ++ b)
-
 
 distributeMono :: Monomial -> Polynomial -> Polynomial
 distributeMono _ [] = []
 distributeMono x (y:ys) = ((fst(x) * fst(y)), iterJoinSameVar ((snd x) ++ (snd y))) : distributeMono x ys
 
-multPoly :: Polynomial -> Polynomial -> Polynomial
+multPoly :: Polynomial -> Polynomial -> String
 multPoly [] [] = []
 multPoly a [] = []
 multPoly [] b = []
-multPoly (x:xs) y = distributeMono x y ++ multPoly xs y
-
-{- multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
-multiplyPolynomials [] _ = []
-multiplyPolynomials _ [] = []
-multiplyPolynomials a b =  -}
+multPoly (x:xs) y = polynomialToString(distributeMono x y) ++ multPoly xs y
