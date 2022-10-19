@@ -30,22 +30,30 @@ addSameExp m1 (x:xs)
     | otherwise = x: addSameExp m1 xs
 
 {- checks if a var is repeated in the same monomial and joins it by adding the exponents -}
-joinSameVarHelper :: (Char, Int) -> [(Char, Int)] -> [(Char, Int)]
-joinSameVarHelper v [] = [v]
-joinSameVarHelper v (x:xs)
-    | fst v == fst x = joinSameVarHelper (fst v, snd v + snd x) xs
-    | otherwise = x : joinSameVarHelper v xs
+joinSameVar :: (Char, Int) -> [(Char, Int)] -> [(Char, Int)]
+joinSameVar v [] = [v]
+joinSameVar v (x:xs)
+    | fst v == fst x = joinSameVar (fst v, snd v + snd x) xs
+    | otherwise = x : joinSameVar v xs
 
-{- joinSameVar :: [(Char, Int)] -> [(Char, Int)]
-joinSameVar (x:xs) =  -}
+{- iterates the monomial vars list and joins all the same exponents -}
+iterJoinSameVar :: [(Char, Int)] -> [(Char, Int)]
+iterJoinSameVar [] = []
+iterJoinSameVar (x:xs) = let varList = joinSameVar x xs
+                            in iterJoinSameVar (init varList) ++ [last varList]
 
+applyJoinSameVarToPoly :: Polynomial -> Polynomial
+applyJoinSameVarToPoly [] = []
+applyJoinSameVarToPoly (x:xs) = (fst x, iterJoinSameVar (snd x)) : applyJoinSameVarToPoly xs
+{- applyJoinSameVarToPoly (x:xs) = let monList = iterJoinSameVar (snd x)
+                                    in applyJoinSameVarToPoly (fst x, init monList) ++ [last monList] -}
 
 sortPoly:: Polynomial -> Polynomial
 sortPoly [] = []
 sortPoly xs = sortOn (snd.last.snd) xs  {- !! SE A LISTA DE VARS ESTIVER VAZIA EM ALGUM MONOMIO DÁ ERRO !! -}
 
 normalizePolynomial :: Polynomial -> Polynomial
---type Polynomial = [(Int,[(Char, Intw)])]
+--type Polynomial = [(Int,[(Char, Int)])]
 normalizePolynomial a
        | null a = []
        | otherwise = reverse (sortPoly (recursiveHelper (stripPoly a)))
@@ -53,6 +61,7 @@ normalizePolynomial a
        recursiveHelper xs
             | null xs = []
             | otherwise = addSameExp (head xs) (recursiveHelper (tail xs))
+            
 {- testing example
 [ (0, [('x', 1)]), (1, [('x', 0)]) , (2, [('y', 2)]), (3, [('y', 2)]), (0, [('x', 1), ('y', 2)]) ] -}
 {- normalPolynomial :: Polynomial -> Polynomial
@@ -61,3 +70,8 @@ addPolynomials :: Polynomial -> Polynomial -> Polynomial
 addPolynomials [] b = b
 addPolynomials a [] = a
 addPolynomials a b = normalizePolynomial (a ++ b)
+
+{- multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
+multiplyPolynomials [] _ = []
+multiplyPolynomials _ [] = []
+multiplyPolynomials a b =  -}
