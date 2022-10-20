@@ -4,7 +4,7 @@ import Data.List
 import Data.Function
 import Data.Ord
 {- type Polynomial = [(Integer,[Char],[Integer])] -}
-type Polynomial = [(Int,[(Char, Int)])]
+type Polynomial = [Monomial]
 type Monomial = (Int,[(Char, Int)])
 
 
@@ -48,8 +48,7 @@ iterJoinSameVar (x:xs) = let varList = joinSameVar x xs
                             in iterJoinSameVar (init varList) ++ [last varList]
 
 applyJoinSameVarToPoly :: Polynomial -> Polynomial
-applyJoinSameVarToPoly [] = []
-applyJoinSameVarToPoly (x:xs) = (fst x, iterJoinSameVar (snd x)) : applyJoinSameVarToPoly xs
+applyJoinSameVarToPoly = map (\ x -> (fst x, iterJoinSameVar (snd x)))
 {- applyJoinSameVarToPoly (x:xs) = let monList = iterJoinSameVar (snd x)
                                     in applyJoinSameVarToPoly (fst x, init monList) ++ [last monList] -}
 
@@ -61,6 +60,7 @@ varToString :: (Char, Int) -> String
 varToString (var, exp) = var : "^" ++ show exp
 
 varsToString :: [(Char, Int)] -> String
+varsToString [] = ""
 varsToString [x] = varToString x
 varsToString (x:xs) = varToString x ++ varsToString xs
 
