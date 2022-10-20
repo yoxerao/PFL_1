@@ -83,7 +83,7 @@ normalizePolynomial a
        recursiveHelper xs
             | null xs = []
             | otherwise = addSameExp (head xs) (recursiveHelper (tail xs))
-            
+
 {- testing example
 [ (0, [('x', 1)]), (1, [('x', 0)]) , (2, [('y', 2)]), (3, [('y', 2)]), (0, [('x', 1), ('y', 2)]) ] -}
 {- normalPolynomial :: Polynomial -> Polynomial
@@ -102,3 +102,33 @@ multPoly [] [] = []
 multPoly a [] = []
 multPoly [] b = []
 multPoly (x:xs) y = polynomialToString(distributeMono x y) ++ multPoly xs y
+
+{-  -}
+subExponents :: [(Char,Int)] -> Char -> [(Char,Int)]
+subExponents [] _ = []
+subExponents (x:xs) b
+    | fst x == b = (b, (snd x) -1) : subExponents xs b
+    | otherwise = x: subExponents xs b
+
+derivMono :: Monomial -> Char -> Monomial
+derivMono (x,y) b = (x * (snd(head (filter(\(m,n)-> m == b) y))), subExponents y b)
+
+checkDerivMono :: Monomial -> Char -> Bool
+checkDerivMono (x,y) b
+    |not (any (\(m,n) -> m == b) y) = False
+    |otherwise = True
+
+
+roughDerivPoly :: Polynomial -> Char -> Polynomial
+roughDerivPoly [] _ = []
+roughDerivPoly (x:xs) b = (if (checkDerivMono x b) then (derivMono x b : roughDerivPoly xs b) else (roughDerivPoly xs b))
+
+derivPoly :: Polynomial -> Char -> String
+derivPoly [] _ = []
+derivPoly a b = normalizePolynomial(roughDerivPoly a b)
+
+
+{- multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
+multiplyPolynomials [] _ = []
+multiplyPolynomials _ [] = []
+multiplyPolynomials a b =  -}
