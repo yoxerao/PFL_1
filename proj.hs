@@ -1,13 +1,25 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Redundant bracket" #-}
 import Data.List
+import Data.String
 import Data.Function
 import Data.Ord
 {- type Polynomial = [(Integer,[Char],[Integer])] -}
 type Polynomial = [Monomial]
 type Monomial = (Int,[(Char, Int)])
 
+sortMonomial :: Monomial -> Monomial
+sortMonomial (c, xs) = (c, sortBy (flip compare `on` snd) xs)
 
+sortPoly::Polynomial->Polynomial
+sortPoly = sortBy (flip compare `on` snd)
+
+sortTotal::Polynomial->Polynomial
+sortTotal [] = []
+sortTotal (x:xs) = sortPoly (sortMonomial x : sortTotal xs)
+
+sortPolyExpontent :: Polynomial -> Polynomial
+sortPolyExpontent = sortBy (flip compare `on` fst)
 
 {- removes all variables with a 0 exponent from a single monomial -}
 removeNullExp :: [(Char, Int)] -> [(Char,Int)]
@@ -52,10 +64,6 @@ applyJoinSameVarToPoly = map (\ x -> (fst x, iterJoinSameVar (snd x)))
 {- applyJoinSameVarToPoly (x:xs) = let monList = iterJoinSameVar (snd x)
                                     in applyJoinSameVarToPoly (fst x, init monList) ++ [last monList] -}
 
-sortPoly :: Polynomial -> Polynomial
-sortPoly [] = []
-sortPoly xs = sortOn (snd.last.snd) xs  {- !! NAO USAR AINDA !! -}
-
 varToString :: (Char, Int) -> String
 varToString (var, exp) = var : "^" ++ show exp
 
@@ -78,7 +86,7 @@ normalizePolynomial :: Polynomial -> String
 --type Polynomial = [(Int,[(Char, Int)])]
 normalizePolynomial a
        | null a = []
-       | otherwise = polynomialToString (recursiveHelper (applyJoinSameVarToPoly (stripPoly a)))
+       | otherwise = polynomialToString (sortTotal (recursiveHelper (applyJoinSameVarToPoly (stripPoly a))))
        where
        recursiveHelper xs
             | null xs = []
@@ -127,6 +135,27 @@ derivPoly :: Polynomial -> Char -> String
 derivPoly [] _ = []
 derivPoly a b = normalizePolynomial(roughDerivPoly a b)
 
+parserVars :: String -> [(Char, Int)]
+parserVars [] = []
+parserVars (x:xs)
+    | head xs == '^' = (x, read (tail xs) :: Int) : parserVars (drop (length (tail xs)) xs)
+    | otherwise = (x, 1) : parserVars xs
+
+parserMono :: String -> Monomial
+parserMono [] = (0,[])
+parserMono a = (read (takeWhile (/= '*') a), parserVars (drop 1 (dropWhile (/= '*') a)))
+
+dropMono:: String -> String
+dropMono [] = []
+dropMono a = dropWhile (\x -> x /= '+' && x /= '-') a
+
+parserPoly :: String -> Polynomial
+parserPoly [] = []
+parserPoly (x:xs)
+    | x == '+' = parserPoly xs
+    | x == '-' = parserPoly xs
+    | x == ' ' = parserPoly xs
+    | otherwise = (parserMono (takeWhile (\x -> x /= '+' && x /= '-') (x:xs)) : parserPoly (dropMono (x:xs)))
 
 {- multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
 multiplyPolynomials [] _ = []
