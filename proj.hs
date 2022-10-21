@@ -149,14 +149,24 @@ parserVars (x:xs)
     | (head xs == '^') && (x /= '*') = (x, read (takeWhile isDigit (tail xs)) :: Int) : parserVars (dropWhile (not . isAlpha) xs)
     | otherwise = (x, 1) : parserVars xs
 
-parserMono :: String -> Monomial
+{- parserMono :: String -> Monomial
 parserMono [] = (0,[])
 parserMono (x:xs)
     | isDigit x = (read (x : takeWhile isDigit xs) :: Int, parserVars (takeWhile (\n-> (n/= '+') && (n/= '-'))  (dropWhile isDigit xs)))
     | x == '-' && isDigit (head xs) =  (read(x:takeWhile isDigit xs)::Int, parserVars(takeWhile (\n->(n /= '+') && (n /= '-')) (dropWhile isDigit xs)))
     | x == '-' && (not . isDigit) (head xs) = (-1, parserVars (takeWhile (\ n -> (n /= '+') && (n/= '-')) (dropWhile isDigit xs)))
     | otherwise = (1,parserVars(takeWhile (\n-> (n /= '+') && (n /= '-'))(dropWhile isDigit (x:xs))))
+ -}
 
+parserMono :: String -> Monomial
+parserMono [] = (0,[])
+parserMono (x:xs)
+    | isDigit x = (read (x : takeWhile isDigit xs) :: Int, parserVars xs)
+    | x == '-' && isDigit (head xs) =  (read(x:takeWhile isDigit xs)::Int, parserVars xs)
+    | x == '-' && (not . isDigit) (head xs) = (-1, parserVars xs)
+    | otherwise = (1, parserVars xs)
+
+{- (takeWhile (\n-> (n /= '+') && (n /= '-'))(dropWhile isDigit (x:xs))) -}
 
 dropMono:: String -> String
 dropMono [] = []
