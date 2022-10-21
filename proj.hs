@@ -6,7 +6,8 @@ import Data.Ord
 import Data.Char
 {- type Polynomial = [(Integer,[Char],[Integer])] -}
 type Polynomial = [Monomial]
-type Monomial = (Int,[(Char, Int)])
+type Monomial = (Int, Vars)
+type Vars = [(Char, Int)]
 
 sortMonomial :: Monomial -> Monomial
 sortMonomial (c, xs) = (c, sortBy (flip compare `on` snd) xs)
@@ -22,7 +23,7 @@ sortPolyExpontent :: Polynomial -> Polynomial
 sortPolyExpontent = sortBy (flip compare `on` fst)
 
 {- removes all variables with a 0 exponent from a single monomial -}
-removeNullExp :: [(Char, Int)] -> [(Char,Int)]
+removeNullExp :: Vars -> [(Char,Int)]
 removeNullExp [] = []
 removeNullExp ((a,b):xs)
     | b == 0 = removeNullExp xs
@@ -47,14 +48,14 @@ addSameExp m1 (x:xs)
     | otherwise = x: addSameExp m1 xs
 
 {- checks if a var is repeated in the same monomial and joins it by adding the exponents -}
-joinSameVar :: (Char, Int) -> [(Char, Int)] -> [(Char, Int)]
+joinSameVar :: (Char, Int) -> Vars -> Vars
 joinSameVar v [] = [v]
 joinSameVar v (x:xs)
     | fst v == fst x = joinSameVar (fst v, snd v + snd x) xs
     | otherwise = x : joinSameVar v xs
 
 {- iterates the monomial vars list and joins all the same exponents -}
-iterJoinSameVar :: [(Char, Int)] -> [(Char, Int)]
+iterJoinSameVar :: Vars -> Vars
 iterJoinSameVar [] = []
 iterJoinSameVar (x:xs) = let varList = joinSameVar x xs
                             in iterJoinSameVar (init varList) ++ [last varList]
@@ -67,12 +68,12 @@ applyJoinSameVarToPoly = map (\ x -> (fst x, iterJoinSameVar (snd x)))
 varToString :: (Char, Int) -> String
 varToString (var, exp) = "*" ++ var : "^" ++ show exp
 
-varsToString :: [(Char, Int)] -> String
+varsToString :: Vars -> String
 varsToString [] = ""
 varsToString [x] = varToString x
 varsToString (x:xs) = varToString x ++ varsToString xs
 
-monomialToString :: (Int, [(Char, Int)]) -> String
+monomialToString :: (Int, Vars) -> String
 monomialToString m = show (fst m) ++ varsToString (snd m)
 
 polynomialToString :: Polynomial -> String
@@ -83,7 +84,7 @@ polynomialToString (x:xs)
     | fst (head xs) < 0 = monomialToString x ++ polynomialToString xs
 
 normalizePolynomial :: Polynomial -> String
---type Polynomial = [(Int,[(Char, Int)])]
+--type Polynomial = [(Int,Vars)]
 normalizePolynomial a
        | null a = []
        | otherwise = polynomialToString (sortTotal (recursiveHelper (applyJoinSameVarToPoly (stripPoly a))))
@@ -138,7 +139,7 @@ derivPoly a b = normalizePolynomial(roughDerivPoly a b)
 filterSpaces:: String -> String
 filterSpaces = filter (/= ' ')
 
-parserVars :: String -> [(Char, Int)]
+parserVars :: String -> Vars
 parserVars [] = []
 parserVars (x:[]) = [(x,1)]
 parserVars (x:xs)
