@@ -9,11 +9,13 @@ type Polynomial = [Monomial]
 type Monomial = (Int, Vars)
 type Vars = [(Char, Int)]
 
+{-sorts monomial by descending value of exponent-}
 sortMonomial :: Monomial -> Monomial
-sortMonomial (c, xs) = (c, sortBy (flip compare `on` snd) xs)
+sortMonomial (c, xs) = (c, sortBy (flip compare `on` snd) xs) 
 
+{-sorts polynomial by char-}
 sortPoly::Polynomial->Polynomial
-sortPoly = sortBy (flip compare `on` snd)
+sortPoly = sortBy (compare `on` snd)
 
 sortTotal::Polynomial->Polynomial
 sortTotal [] = []
