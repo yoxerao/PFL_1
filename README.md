@@ -24,10 +24,8 @@ Uma vez que esta funcionalidade pode implicar diversos pormenores e modificaçõ
 Para esta funcionalidade aproveitámos a função que criámos para a funcionalidade anterior, apenas concatenando os 2 polinómios a somar previamente a chamar a função de normalização, uma vez que ao fazê-lo, obtem-se um polinómio que pode ser normalizado.
 
 1. A função recebe um polinómio ainda no formato de string, tal como o utilizador o inserir
-2.
-3.
-4.
-5.
+2. Se algum dos polinómios inseridos estiver vazio, o output será o polinómio que não for nulo ou. Se ambos forem nulos, o output é um polinómio nulo
+3. Se não, a soma resulta da chamada da função de normalização, pelas razões já mencionadas.
 
 ### Multiplicação
 
