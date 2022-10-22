@@ -106,13 +106,18 @@ distributeMono :: Monomial -> Polynomial -> Polynomial
 distributeMono _ [] = []
 distributeMono x (y:ys) = (fst x * fst y, iterJoinSameVar (snd x ++ snd y)) : distributeMono x ys
 
-multPoly :: Polynomial -> Polynomial -> String
+roughMultPoly :: Polynomial -> Polynomial -> String
+roughMultPoly [] [] = []
+roughMultPoly a [] = []
+roughMultPoly [] b = []
+roughMultPoly (x:xs) y = "(" ++ polynomialToString(distributeMono x y) ++ ")"++ "+" ++ roughMultPoly xs y
+
+multPoly::Polynomial->Polynomial->String
 multPoly [] [] = []
 multPoly a [] = []
 multPoly [] b = []
-multPoly (x:xs) y = polynomialToString(distributeMono x y) ++ multPoly xs y
-
-{-  -}
+multPoly x y = init(roughMultPoly x y)
+ {-  -}
 subExponents :: [(Char,Int)] -> Char -> [(Char,Int)]
 subExponents [] _ = []
 subExponents (x:xs) b
@@ -149,45 +154,41 @@ parserVars (x:xs)
     | (head xs == '^') && (x /= '*') = (x, read (takeWhile isDigit (tail xs)) :: Int) : parserVars (dropWhile (not . isAlpha) xs)
     | otherwise = (x, 1) : parserVars xs
 
-{- parserMono :: String -> Monomial
+parserMono :: String -> Monomial
 parserMono [] = (0,[])
 parserMono (x:xs)
     | isDigit x = (read (x : takeWhile isDigit xs) :: Int, parserVars (takeWhile (\n-> (n/= '+') && (n/= '-'))  (dropWhile isDigit xs)))
     | x == '-' && isDigit (head xs) =  (read(x:takeWhile isDigit xs)::Int, parserVars(takeWhile (\n->(n /= '+') && (n /= '-')) (dropWhile isDigit xs)))
     | x == '-' && (not . isDigit) (head xs) = (-1, parserVars (takeWhile (\ n -> (n /= '+') && (n/= '-')) (dropWhile isDigit xs)))
     | otherwise = (1,parserVars(takeWhile (\n-> (n /= '+') && (n /= '-'))(dropWhile isDigit (x:xs))))
- -}
+ 
 
-parserMono :: String -> Monomial
+{- parserMono :: String -> Monomial
 parserMono [] = (0,[])
 parserMono (x:xs)
     | isDigit x = (read (x : takeWhile isDigit xs) :: Int, parserVars xs)
     | x == '-' && isDigit (head xs) = (read('-' : takeWhile isDigit xs) ::Int, parserVars (dropWhile isDigit xs))
     | x == '-' && (not . isDigit) (head xs) = (-1, parserVars xs)
     | otherwise = (1, parserVars xs)
-
+ -}
 dropMono:: String -> String
 dropMono [] = []
 dropMono a = dropWhile (\x -> x /= '+' && x /= '-') a
 
-{- roughParserPoly :: String -> Polynomial
+roughParserPoly :: String -> Polynomial
 roughParserPoly [] = []
 roughParserPoly (x:xs)
     | x == '-' = parserMono (x:takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  xs)
     | x == '+' = parserMono (takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  xs)
-    | otherwise = parserMono (x:takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  (x:xs)) -}
+    | otherwise = parserMono (x:takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  (x:xs)) 
 
-roughParserPoly :: String -> Polynomial
+{-roughParserPoly :: String -> Polynomial
 roughParserPoly [] = []
 roughParserPoly (x:xs)
     | x == '-' = parserMono (x:takeWhile (\x -> (x /= '+')) xs) : roughParserPoly (dropWhile (\x -> (x /= '+')) xs)
     | x == '+' = parserMono (takeWhile (\x -> (x /= '+')) xs) : roughParserPoly (dropWhile (\x -> (x /= '+')) xs)
     | otherwise = parserMono (x:takeWhile (\x -> (x /= '+')) xs) : roughParserPoly (dropWhile (\x -> (x /= '+')) (x:xs))
-
+-}
 parserPoly :: String -> Polynomial
 parserPoly [] = []
 parserPoly a =  roughParserPoly (filterSpaces a)
-{- multiplyPolynomials :: Polynomial -> Polynomial -> Polynomial
-multiplyPolynomials [] _ = []
-multiplyPolynomials _ [] = []
-multiplyPolynomials a b =  -}
