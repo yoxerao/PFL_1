@@ -36,5 +36,10 @@ Para a multiplicação de polinómios, decidimos percorrer recursivamente a list
 3. Se não, aplica-se a função que multiplica o primeiro monómio do primeiro polinómio pelo segundo polinómio, concatenando-se esse resultado com a chamada recursiva da função principal para os restantes monómios do primeiro polinómio.
 
 ### Derivação
+Por fim, para a derivação, criámos também uma função para derivar cada monómio e, como auxiliares, uma função para verificar se a variável pela qual se pretende derivar o polinómio está presente em cada monómio e uma função para baixar os expoentes das variáveis aquando da derivação.
+
+1. A função recebe um polinómio e um caracter que representa a variável pela qual se quer derivar o polinómio.
+2. Se o polinómio for nulo, é retornado também um polinómio nulo
+3. Se não, o output resulta da derivação e posterior normalização do mesmo.
 
 ## Exemplos para testes
