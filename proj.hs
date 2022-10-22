@@ -162,22 +162,27 @@ parserMono :: String -> Monomial
 parserMono [] = (0,[])
 parserMono (x:xs)
     | isDigit x = (read (x : takeWhile isDigit xs) :: Int, parserVars xs)
-    | x == '-' && isDigit (head xs) =  (read(x:takeWhile isDigit xs)::Int, parserVars xs)
+    | x == '-' && isDigit (head xs) = (read('-' : takeWhile isDigit xs) ::Int, parserVars (dropWhile isDigit xs))
     | x == '-' && (not . isDigit) (head xs) = (-1, parserVars xs)
     | otherwise = (1, parserVars xs)
-
-{- (takeWhile (\n-> (n /= '+') && (n /= '-'))(dropWhile isDigit (x:xs))) -}
 
 dropMono:: String -> String
 dropMono [] = []
 dropMono a = dropWhile (\x -> x /= '+' && x /= '-') a
 
-roughParserPoly :: String -> Polynomial
+{- roughParserPoly :: String -> Polynomial
 roughParserPoly [] = []
 roughParserPoly (x:xs)
     | x == '-' = parserMono (x:takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  xs)
     | x == '+' = parserMono (takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  xs)
-    | otherwise = parserMono (x:takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  (x:xs))
+    | otherwise = parserMono (x:takeWhile (\x -> (x /= '+') && (x /= '-')) xs) : roughParserPoly (dropMono  (x:xs)) -}
+
+roughParserPoly :: String -> Polynomial
+roughParserPoly [] = []
+roughParserPoly (x:xs)
+    | x == '-' = parserMono (x:takeWhile (\x -> (x /= '+')) xs) : roughParserPoly (dropWhile (\x -> (x /= '+')) xs)
+    | x == '+' = parserMono (takeWhile (\x -> (x /= '+')) xs) : roughParserPoly (dropWhile (\x -> (x /= '+')) xs)
+    | otherwise = parserMono (x:takeWhile (\x -> (x /= '+')) xs) : roughParserPoly (dropWhile (\x -> (x /= '+')) (x:xs))
 
 parserPoly :: String -> Polynomial
 parserPoly [] = []
