@@ -46,20 +46,28 @@ Por fim, para a derivação, criámos também uma função para derivar cada mon
 
 #### Normalização
 `0*y^2 + 4*x*x^3 + 2*x^4`
+<br>
 `2*y^2 - 4*y^2 + 2*y^0 + 4*y^1*`
+<br>
 `y^0x^0 + 1 + 2*x^2 + x^3`
 
 #### Adição
 `4*x + 3*x^2 + 2*x^3` e `x^3 - x^2 + x`
+<br>
 `x + 2*x` e `-2x - x`
+<br>
 `2*x^2 + 2*y^2` e `2*xx + 2*z^2`
 
 #### Multiplicação
 `2*x^2` e `4*x + 4*yz`
+<br>
 `2*x^2 + x + 1` e `4x + y + 2*y^2`
+<br>
 `x - 1` e `-x + 1`
 
 #### Derivação
 `4*x^2 + x + y + 1` e `x`
+<br>
 `2*y + z` e `x`
+<br>
 `-x^2 + x + 1` e `x`
