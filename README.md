@@ -8,6 +8,7 @@ Neste trabalho, decidimos utilizar uma lista de tuplos para representar os polin
 - Vars = [(Char, Int)]
 
 ### Justificação
+Com esta representação, conseguimos facilmente alcançar as variáveis e os respetivos expoentes, acedendo ao primeiro e segundo elemento dos tuplos, com chamadas recursivas das funções, de modo a iterar a lista de `Vars`. Da mesma forma, conseguimos aceder a cada monómio que constitui o polinómio, iterando a lista de monómios.
 
 ## Funcionalidades
 
