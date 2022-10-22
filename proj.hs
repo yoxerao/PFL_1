@@ -17,12 +17,11 @@ sortMonomial (c, xs) = (c, sortBy (flip compare `on` snd) xs)
 sortPoly::Polynomial->Polynomial
 sortPoly = sortBy (compare `on` snd)
 
+{-combines sortPoly with sortMonomial-}
 sortTotal::Polynomial->Polynomial
 sortTotal [] = []
 sortTotal (x:xs) = sortPoly (sortMonomial x : sortTotal xs)
 
-sortPolyExpontent :: Polynomial -> Polynomial
-sortPolyExpontent = sortBy (flip compare `on` fst)
 
 {- removes all variables with a 0 exponent from a single monomial -}
 removeNullExp :: Vars -> [(Char,Int)]
@@ -62,6 +61,7 @@ iterJoinSameVar [] = []
 iterJoinSameVar (x:xs) = let varList = joinSameVar x xs
                             in iterJoinSameVar (init varList) ++ [last varList]
 
+
 applyJoinSameVarToPoly :: Polynomial -> Polynomial
 applyJoinSameVarToPoly = map (\ x -> (fst x, iterJoinSameVar (snd x)))
 {- applyJoinSameVarToPoly (x:xs) = let monList = iterJoinSameVar (snd x)
@@ -85,6 +85,7 @@ polynomialToString (x:xs)
     | fst (head xs) > 0 = monomialToString x ++ "+" ++ polynomialToString xs
     | fst (head xs) < 0 = monomialToString x ++ polynomialToString xs
 
+{- applies stripPoly and applyJoinSameVarToPoly to a polynomial, then recursively calls addSameExp to normalize a polynomial -}
 normalizePolynomial :: Polynomial -> String
 --type Polynomial = [(Int,Vars)]
 normalizePolynomial a
@@ -95,54 +96,59 @@ normalizePolynomial a
             | null xs = []
             | otherwise = addSameExp (head xs) (recursiveHelper (tail xs))
 
-{- testing example
-[ (0, [('x', 1)]), (1, [('x', 0)]) , (2, [('y', 2)]), (3, [('y', 2)]), (0, [('x', 1), ('y', 2)]) ] -}
-{- normalPolynomial :: Polynomial -> Polynomial
-normalPolynomial [] = [] -}
+{- concatenates two polynomials, then calls normalizePolynomial resulting in the sum and normalization of the input -}
 addPolynomials :: Polynomial -> Polynomial -> String
 addPolynomials [] b = polynomialToString b
 addPolynomials a [] = polynomialToString a
 addPolynomials a b = normalizePolynomial (a ++ b)
 
+{-  recursively multiplies coefficient and variables for every monomial in input polynomial -}
 distributeMono :: Monomial -> Polynomial -> Polynomial
 distributeMono _ [] = []
 distributeMono x (y:ys) = (fst x * fst y, iterJoinSameVar (snd x ++ snd y)) : distributeMono x ys
 
+{- multiplies 2 polynomials by recursively calling distributeMono for every monomial on the first polynomial -}
 roughMultPoly :: Polynomial -> Polynomial -> String
 roughMultPoly [] [] = []
 roughMultPoly a [] = []
 roughMultPoly [] b = []
 roughMultPoly (x:xs) y = "(" ++ polynomialToString(distributeMono x y) ++ ")"++ "+" ++ roughMultPoly xs y
 
+{- calls roughMultPoly on input and cleans up the resulting string -}
 multPoly::Polynomial->Polynomial->String
 multPoly [] [] = []
 multPoly a [] = []
 multPoly [] b = []
 multPoly x y = init(roughMultPoly x y)
- {-  -}
+
+{- reduces exponent value by 1 if variable == given input char -}
 subExponents :: [(Char,Int)] -> Char -> [(Char,Int)]
 subExponents [] _ = []
 subExponents (x:xs) b
     | fst x == b = (b, snd x -1) : subExponents xs b
     | otherwise = x: subExponents xs b
 
+{- multiplies coefficient by exponent value of every var == to given char, then calls subExponents on the list of variables-}
 derivMono :: Monomial -> Char -> Monomial
 derivMono (x,y) b = (x * snd(head (filter(\(m,n)-> m == b) y)), subExponents y b)
 
+{-checks if the monomial has any variabe == to input char-}
 checkDerivMono :: Monomial -> Char -> Bool
 checkDerivMono (x,y) b
     |not (any (\(m,n) -> m == b) y) = False
     |otherwise = True
 
-
+{-recursively calls checkDerivMono on every monomial in input polynomial, then derivates it if the result is True, otherwise ignores it-}
 roughDerivPoly :: Polynomial -> Char -> Polynomial
 roughDerivPoly [] _ = []
 roughDerivPoly (x:xs) b = if checkDerivMono x b then derivMono x b : roughDerivPoly xs b else roughDerivPoly xs b
 
+{- normalizes the roughDerivPoly result -}
 derivPoly :: Polynomial -> Char -> String
 derivPoly [] _ = []
 derivPoly a b = normalizePolynomial(roughDerivPoly a b)
 
+{- removes all spaces from string -}
 filterSpaces:: String -> String
 filterSpaces = filter (/= ' ')
 
