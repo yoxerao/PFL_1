@@ -42,4 +42,24 @@ Por fim, para a derivação, criámos também uma função para derivar cada mon
 2. Se o polinómio for nulo, é retornado também um polinómio nulo
 3. Se não, o output resulta da derivação e posterior normalização do mesmo.
 
-## Exemplos para testes
+## Exemplos de utilização das funcionalidades
+
+#### Normalização
+`0*y^2 + 4*x*x^3 + 2*x^4`
+`2*y^2 - 4*y^2 + 2*y^0 + 4*y^1*`
+`y^0x^0 + 1 + 2*x^2 + x^3`
+
+#### Adição
+`4*x + 3*x^2 + 2*x^3` e `x^3 - x^2 + x`
+`x + 2*x` e `-2x - x`
+`2*x^2 + 2*y^2` e `2*xx + 2*z^2`
+
+#### Multiplicação
+`2*x^2` e `4*x + 4*yz`
+`2*x^2 + x + 1` e `4x + y + 2*y^2`
+`x - 1` e `-x + 1`
+
+#### Derivação
+`4*x^2 + x + y + 1` e `x`
+`2*y + z` e `x`
+`-x^2 + x + 1` e `x`
